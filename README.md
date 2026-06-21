@@ -1,6 +1,8 @@
 Raw data & source code for the artice:
 
-# soil functions
+# A re-classification of soil functions with an approach to assessing soil multifunctionality
+
+Gongalsky K.B., Degtyarev M.I., Kotelnikova K.V., Sozontov A.N., Chernova O.V., Guseva P.A., Kontoboytseva A.A., Korobushkin D.I., Saifutdinov R.A., Semenova T.A., Shakhab S.V., Stolpnikova E.M., Terekhova V.A., and Zaitsev A.S.
 
 to be filled later...
 
