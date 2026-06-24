@@ -3,7 +3,8 @@ rasters
 # History files
 .Rhistory
 .Rapp.history
-
+.Rproj
+soil_multifunctionality_2026.Rproj
 # Session Data files
 .RData
 .RDataTmp
