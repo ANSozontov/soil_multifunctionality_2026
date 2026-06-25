@@ -125,3 +125,9 @@ save(
     )
 
 cat("\nTask 3 finished:\n"); Sys.time() - my_time; cat("\n")
+
+lst(random_points, EW_NM_points) %>% 
+    map_dfr(~count(st_drop_geometry(.x), worldcover), .id = "tp") %>% 
+    pivot_wider(names_from = tp, values_from = n, values_fill = 0) %>% 
+    arrange(worldcover) %>% 
+    writexl::write_xlsx("tmp.xlsx")

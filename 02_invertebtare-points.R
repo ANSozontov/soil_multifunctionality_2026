@@ -9,7 +9,7 @@ suppressPackageStartupMessages({
 })
 
 # nematodes
-if(!dir.exists("2020_global_nematode_dataset")){
+if(!dir.exists("input_data/2020_global_nematode_dataset")){
     system("git clone https://github.com/hooge104/2020_global_nematode_dataset")
     cli::cli_alert_success("Nematodes dataset has been downloaded")
 } else {
@@ -17,7 +17,7 @@ if(!dir.exists("2020_global_nematode_dataset")){
 }
 
 nematodes <- readr::read_delim(
-        "2020_global_nematode_dataset/data/nematode_full_dataset_wBiome.csv",
+        "input_data/2020_global_nematode_dataset/data/nematode_full_dataset_wBiome.csv",
         show_col_types = F) %>% 
     select(
         lat_nm = Pixel_Lat, lon_nm = Pixel_Long, 
@@ -29,7 +29,7 @@ nematodes <- readr::read_delim(
     mutate(NMID = 1:nrow(.), .before = 1) 
 
 # earthworms 
-path <- "Phillips_2021/1880_26_Dataset/Phillips_sWorm_2021-02-18/1880 Phillips"
+path <- "input_data/Phillips_2021/1880_26_Dataset/Phillips_sWorm_2021-02-18/1880 Phillips"
 EW_sites <- readr::read_delim(
         paste0(path, "/SiteData_sWorm_2021-02-18.csv"), 
         show_col_types = F) %>% 
