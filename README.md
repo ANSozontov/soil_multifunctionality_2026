@@ -6,6 +6,17 @@ Gongalsky K.B., Degtyarev M.I., Kotelnikova K.V., Sozontov A.N., Chernova O.V., 
 
 There is plethora of papers devoted to soil multifunctionality (SMF), but there is no general understanding what is it. Many authors consider contrasting phenomena in their studies as SMF and there is an alarming lack of consensus in the scientific world on its complex concept. We aimed at reviewing existing approaches to ecological soil functions, and shaping up the definition of SMF. For this, we analysed literature operating with soil fucntions, and found that the authors intermix the functions of soil and the soil parameters. Based on this, we propose a unified system of soil functions based on four groups of functions proposed by FAO, supporting, regulating, provisioning, and cultural and the hierarchy of functions – global and local. We provide descriptions of the main classes of soil functions and the lists of proxies to assess them. Further, we assess the efficiency of including different functions into SMF index. Modelling based on almost 20,000 points across the globe including 188 soil functions indicate that many soil functions are collinear, and to obtain significantly robust MF index about 50 soil functions are needed. For practical purposes, we propose to include functions from all classes to an analysis to make an assessment of SMF comparable across the studies.   
 
+Run the scripts sequentially: 
+
+`Rscript 00_prepare_protected_areas.R  
+Rscript 01_random_points.R 
+Rscript 02_invertebtare-points.R  
+Rscript 03_add_WorldCover.R 
+Rscript 04b_plot_rast_data.R  
+Rscript 04_extract_rast.vect_data.R  
+Rscript 11_points.R 
+Rscript 20_soil.MF_calc.R`
+
 [![CC BY 4.0][cc-by-image]][cc-by]
 
 [![CC BY 4.0][cc-by-shield]][cc-by]

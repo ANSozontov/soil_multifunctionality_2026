@@ -13,8 +13,11 @@ set.seed(1); dots <- tidyr::expand_grid(
     dplyr::mutate(
         x = x + runif(nrow(.), -0.2, +0.2),
         y = y + runif(nrow(.), -0.2, +0.2)
-        ) %>% 
-    # sample_frac(0.01) %>% 
+        )
+dots$x[dots$x < -180] <- dots$x[dots$x < -180] + 180
+dots$x[dots$x >  180] <- dots$x[dots$x >  180] - 180
+    
+dots <- dots %>% # sample_frac(0.01) %>% 
     st_as_sf(coords = c("x", "y"), crs = 4326, remove = F)
 
 check <- st_intersects(dots, nater_terrain, sparse = FALSE)

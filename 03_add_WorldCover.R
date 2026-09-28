@@ -15,11 +15,11 @@ wc_table <- data.frame(
 )
 
 check <- character()
-path <- stringr::str_subset(dir("input_data", pattern = "RData"), "points")
+path <- stringr::str_subset(dir("data", pattern = "RData"), "points")
 if(length(path)<1){
     check <- "Warning! There is no points data"
 } else {
-    load(paste0("input_data/", sort(path, decreasing = TRUE)[1]))
+    load(paste0("data/", sort(path, decreasing = TRUE)[1]))
 }
 # path <- stringr::str_subset(dir(pattern = "RData"), "EW-NM-points")
 # if(length(path)<1){
@@ -121,7 +121,7 @@ path <- Sys.time() |>
     # stringr::str_replace_all( ":", "-")
 save(
     list = c("EW_NM_points", "random_points"), 
-    file = paste0("input_data/EW-NM-random-points_WorldCover_", path, ".RData")
+    file = paste0("data/EW-NM-random-points_WorldCover_", path, ".RData")
     )
 
 random_points <- random_points %>% 
@@ -136,7 +136,7 @@ EW_NM_points <- EW_NM_points %>%
     ))
 save(
     list = c("EW_NM_points", "random_points"), 
-    file = paste0("input_data/EW-NM-random-points_final_", path, ".RData")
+    file = paste0("data/EW-NM-random-points_final_", path, ".RData")
 )
 
 cat("\nTask 3 finished:\n"); Sys.time() - my_time; cat("\n")

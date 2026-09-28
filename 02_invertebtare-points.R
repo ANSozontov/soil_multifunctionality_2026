@@ -9,7 +9,7 @@ suppressPackageStartupMessages({
 })
 
 # nematodes
-if(!dir.exists("input_data/2020_global_nematode_dataset")){
+if(!dir.exists("data/2020_global_nematode_dataset")){
     system("git clone https://github.com/hooge104/2020_global_nematode_dataset")
     cli::cli_alert_success("Nematodes dataset has been downloaded")
 } else {
@@ -17,7 +17,7 @@ if(!dir.exists("input_data/2020_global_nematode_dataset")){
 }
 
 nematodes <- readr::read_delim(
-        "input_data/2020_global_nematode_dataset/data/nematode_full_dataset_wBiome.csv",
+        "data/2020_global_nematode_dataset/data/nematode_full_dataset_wBiome.csv",
         show_col_types = F) %>% 
     select(
         lat_nm = Pixel_Lat, lon_nm = Pixel_Long, 
@@ -29,7 +29,7 @@ nematodes <- readr::read_delim(
     mutate(NMID = 1:nrow(.), .before = 1) 
 
 # earthworms 
-path <- "input_data/Phillips_2021/1880_26_Dataset/Phillips_sWorm_2021-02-18/1880 Phillips"
+path <- "data/Phillips_2021/1880_26_Dataset/Phillips_sWorm_2021-02-18/1880 Phillips"
 EW_sites <- readr::read_delim(
         paste0(path, "/SiteData_sWorm_2021-02-18.csv"), 
         show_col_types = F) %>% 
@@ -54,7 +54,7 @@ cat("\nSubtask 2.1 finished:\n"); Sys.time() - my_time; cat("\n")
 cat("\nSubtask 2.2 (distances 1) started...\n") 
 my_time <- Sys.time()
 # check for distance
-path0 <- str_subset(dir(pattern = "RData"), "inv.points.sparsed2")
+path0 <- str_subset(dir(pattern = "RData"), "data/inv.points.sparsed2")
 if(length(path0)<1){
     cat(
         "\nEw and Nm points have NOT been matched already", 
@@ -97,7 +97,7 @@ if(length(path0)<1){
         stringr::str_split_1("\\.")
     path <- path[1] |>
         stringr::str_replace_all( ":", "-")
-    save(list = "sparsed1", file = paste0("inv.points.sparsed1_", path, ".RData"))
+    save(list = "sparsed1", file = paste0("data/inv.points.sparsed1_", path, ".RData"))
     
     cat("\nSubtask 2.2 finished:\n"); Sys.time() - my_time; cat("\n")
     cat("\n", nrow(sparsed1), "points remain\n")
@@ -135,10 +135,10 @@ if(length(path0)<1){
         stringr::str_split_1("\\.")
     path <- path[1] |>
         stringr::str_replace_all( ":", "-")
-    save(list = "sparsed2", file = paste0("inv.points.sparsed2_", path, ".RData"))
+    save(list = "sparsed2", file = paste0("data/inv.points.sparsed2_", path, ".RData"))
     
     
-    # path <- str_subset(dir(pattern = "RData"), "inv.points.sparsed2")
+    # path <- str_subset(dir(pattern = "RData"), "data/inv.points.sparsed2")
 } else {
     cat(
         "\nEw and Nm points have been matched already", 
