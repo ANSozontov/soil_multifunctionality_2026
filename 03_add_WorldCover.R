@@ -1,26 +1,22 @@
 # points loading ----------------------------------------------------------
 cat("\nTask 3 started...\n")
 my_time <- Sys.time()
-suppressMessages({
-    library(sf)
-    library(parallel)
-})
-
-wc_table <- data.frame(
-    wc = c(10, 20, 30, 40, 50, 60, 70, 80, 90, 95, 100), 
-    worldcover = c("Tree.cover", "Shrubland", "Grassland",
-                   "Cropland", "Built.up", "Bare.sparse.vegetation",
-                   "Snow.and.Ice", "Permanent.water.bodies",
-                   "Herbaceous.wetland", "Mangroves", "Moss.and.lichen")
-)
 
 check <- character()
-path <- stringr::str_subset(dir("data", pattern = "RData"), "points")
+path <- stringr::str_subset(dir("data", pattern = "RData"), "random-points")
 if(length(path)<1){
-    check <- "Warning! There is no points data"
+    check <- "Warning! There is no random points data"
 } else {
     load(paste0("data/", sort(path, decreasing = TRUE)[1]))
 }
+path <- stringr::str_subset(dir("data", pattern = "RData"), "EW-NM-points_2")
+if(length(path)<1){
+    check <- "Warning! There is no earthworms (EW) and nematodes (NM) points data"
+} else {
+    load(paste0("data/", sort(path, decreasing = TRUE)[1]))
+}
+
+
 # path <- stringr::str_subset(dir(pattern = "RData"), "EW-NM-points")
 # if(length(path)<1){
 #     check <- c(check, "Warning! There is no earthworms&nematodes points")
@@ -33,6 +29,7 @@ if(length(check>0)){
     }
     cli::cli_abort("Run earlier scripts, please")
 } else {
+    rm(path, check)
     cat("Points have been loaded\n")
 }
 
@@ -41,7 +38,20 @@ if(length(check>0)){
 
 random_points$id <- 1:nrow(random_points)
 EW_NM_points$id <- 1:nrow(EW_NM_points)
-rm(check, path)
+
+suppressMessages({
+    library(sf)
+    library(parallel)
+    library(tidyverse)
+})
+
+wc_table <- data.frame(
+    wc = c(10, 20, 30, 40, 50, 60, 70, 80, 90, 95, 100), 
+    worldcover = c("Tree cover", "Shrubland", "Grassland",
+                   "Cropland", "Built up", "Bare sparse vegetation",
+                   "Snow and Ice", "Permanent water bodies",
+                   "Herbaceous wetland", "Mangroves", "Moss and lichen")
+)
 
 # WorldCover --------------------------------------------------------------
 wc_files <- dir("rasters/00_worldcover", pattern = ".tif")
@@ -186,10 +196,10 @@ p2 <- random_points %>%
         "Bare sparse vegetation", "Cropland", "Grassland", 
         "Shrubland","Herbaceous wetland", "Moss and lichen", "Tree cover"
     )) %>% 
-    transmute(id, wc, worldcover, 
+    transmute( wc, worldcover, 
         Dataset = "Random \npoints", 
         alp = 0.3) %>% 
-    rbind(transmute(EW_NM_points, id, wc, worldcover, 
+    rbind(transmute(EW_NM_points, wc, worldcover, 
         Dataset = "Earthworms & Nematodes \npoints",
         alp = 1
     )) %>% 
@@ -220,13 +230,15 @@ ggplot() +
         )
     )
 
-ggsave(
-    paste0("export/points_terrain_", Sys.Date(), ".png"), 
-    p2, 
-    height = 210*0.63, 
-    width = 297*0.8,
-    units = "mm", 
-    dpi = 230
-)
+if(interactive()){plot(p2)} else {
+    ggsave(
+        paste0("export/points_terrain_", Sys.Date(), ".png"), 
+        p2, 
+        height = 210*0.63, 
+        width = 297*0.8,
+        units = "mm", 
+        dpi = 230
+    )
+}
 
 

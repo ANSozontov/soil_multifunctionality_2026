@@ -54,7 +54,7 @@ cat("\nSubtask 2.1 finished:\n"); Sys.time() - my_time; cat("\n")
 cat("\nSubtask 2.2 (distances 1) started...\n") 
 my_time <- Sys.time()
 # check for distance
-path0 <- str_subset(dir(pattern = "RData"), "data/inv.points.sparsed2")
+path0 <- str_subset(dir(pattern = "RData"), "data/EW-NM-points.sparsed2")
 if(length(path0)<1){
     cat(
         "\nEw and Nm points have NOT been matched already", 
@@ -97,7 +97,7 @@ if(length(path0)<1){
         stringr::str_split_1("\\.")
     path <- path[1] |>
         stringr::str_replace_all( ":", "-")
-    save(list = "sparsed1", file = paste0("data/inv.points.sparsed1_", path, ".RData"))
+    save(list = "sparsed1", file = paste0("data/EW-NM-points_sparsed1_", path, ".RData"))
     
     cat("\nSubtask 2.2 finished:\n"); Sys.time() - my_time; cat("\n")
     cat("\n", nrow(sparsed1), "points remain\n")
@@ -135,10 +135,8 @@ if(length(path0)<1){
         stringr::str_split_1("\\.")
     path <- path[1] |>
         stringr::str_replace_all( ":", "-")
-    save(list = "sparsed2", file = paste0("data/inv.points.sparsed2_", path, ".RData"))
+    save(list = "sparsed2", file = paste0("data/EW-NM-points_sparsed2_", path, ".RData"))
     
-    
-    # path <- str_subset(dir(pattern = "RData"), "data/inv.points.sparsed2")
 } else {
     cat(
         "\nEw and Nm points have been matched already", 
@@ -187,6 +185,6 @@ EW_NM_points <- sf::st_as_sf(
     crs = 4326, 
     remove = F)
 
-save(list = "EW_NM_points", file = paste0("EW-NM-points_", path, ".RData"))
+save(list = "EW_NM_points", file = paste0("data/EW-NM-points_", path, ".RData"))
 cat("\nSubtask 2.3 finished:\n"); Sys.time() - my_time; cat("\n")
 cat("\nTask 2 finished:\n"); Sys.time() - my_time0; cat("\n")

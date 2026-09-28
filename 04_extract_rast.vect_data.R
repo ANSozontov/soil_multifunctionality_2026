@@ -13,24 +13,24 @@ suppressMessages({
     library(tidyverse)
 })
 
-path <- str_subset(dir(pattern = "RData"), "data_pt1_worldcover_")
+path <- str_subset(dir("data", pattern = "RData"), "WorldCover")
 if(length(path)<1){
     cli::cli_abort("Warning! There is no points data in the working directory")
 } else {
-    load(sort(path, decreasing = TRUE)[1])
+    load(paste0("data/", sort(path, decreasing = TRUE)[1]))
 }
 
 random_points <- random_points %>% 
     dplyr::filter(worldcover %in% c(
-        "Bare.sparse.vegetation", "Cropland", "Grassland", "Shrubland", 
-        "Herbaceous.wetland", "Moss.and.lichen", "Tree.cover")) %>% 
+        "Bare sparse vegetation", "Cropland", "Grassland", "Shrubland", 
+        "Herbaceous wetland", "Moss and lichen", "Tree cover")) %>% 
     rename(lon = x, lat = y) %>%
     mutate(id = 1:nrow(.), ID = 1:nrow(.), .before = 1)
 
 EW_NM_points <- EW_NM_points %>% 
     dplyr::filter(worldcover %in% c(
-        "Bare.sparse.vegetation", "Cropland", "Grassland", "Shrubland", 
-        "Herbaceous.wetland", "Moss.and.lichen", "Tree.cover")) %>% 
+        "Bare sparse vegetation", "Cropland", "Grassland", "Shrubland", 
+        "Herbaceous wetland", "Moss and lichen", "Tree cover")) %>% 
     dplyr::select(-EWID, -NMID) %>% 
     mutate(id = 1:nrow(.), ID = 1:nrow(.), .before = 1)
 
@@ -595,14 +595,12 @@ res <- pts %>%
     map(~.x %>% 
             map_dfr(rbind) %>% 
             # arrange(id))
-            select(-type) %>% 
+            dplyr::select(-type) %>% 
             st_drop_geometry
     )
 
 EW_NM_points  <- left_join(EW_NM_points,  res$EW, by = c("ID", "id"))
 random_points <- left_join(random_points, res$rnd, by = c("ID", "id"))
-# EW_NM_points$landscan_global_population_2024 <- res$EW$landscan_global_population_2024
-# random_points$landscan_global_population_2024 <- res$rnd$landscan_global_population_2024
 
 cat("\nSubtask 11 end. landscan-global-population is here!\n"); Sys.time() - time1; cat("\n\n\n")
 
@@ -758,12 +756,12 @@ cat("\nSubtask 13 end. Harmonized World Soil Database is here!\n"); Sys.time() -
 cat("Subtask 14a started: WDPA Protected areas preparation \n")
 time1 <- Sys.time()
 files <- dir("vectors/14_WDPA.cached/", ".gpkg")
-if(length(files)<32){
+if(length(files)<10){
     cat("geometry was not prepared! preparin in progres...")
     source("04a_prepare_protected_areas.R")
 } else {
     cat("geometry was been simplified already, loading... \n")
-    res <- 1:32 %>% 
+    wdpa_simpl <- 1:10 %>% 
         # `[`(1:2) %>%
         mclapply(
             function(i){
@@ -771,7 +769,7 @@ if(length(files)<32){
                     st_read(as.character(i), quiet = TRUE) %>% # wdpar::st_repair_geometry(
                     st_transform(3857)
             }, 
-            mc.cores = 16
+            mc.cores = 10
         )
 }
 cat("loaded: "); (Sys.time()-time1); cat("\n\n\n")
@@ -782,13 +780,13 @@ cat("Subtask 14b started: Protected areas: extraction \n")
 pts <- st_transform(pts, 3857)
 
 time1 <- Sys.time()
-distances <- 1:32 %>% 
+distances <- 1:10 %>% 
     mclapply(
         function(i){
-            neighbors <- st_nearest_feature(pts, st_repair_geometry(res[[i]]))
-            as.vector(st_distance(pts, res[[i]][neighbors,], by_element = TRUE))
+            neighbors <- st_nearest_feature(pts, wdpa_simpl[[i]]) # st_repair_geometry()
+            as.vector(st_distance(pts, wdpa_simpl[[i]][neighbors,], by_element = TRUE))
         },
-        mc.cores = 12
+        mc.cores = 10
     ) 
 Sys.time() - time1
 
@@ -800,7 +798,7 @@ distances <- pts %>%
     split(.$type) %>% 
     map(~.x %>% 
             st_drop_geometry %>% 
-            select(-type)
+            dplyr::select(-type)
         )
 
 EW_NM_points <- left_join(EW_NM_points, distances$EW, by = c("ID", "id"))
@@ -812,7 +810,7 @@ path <- Sys.time() %>%
     
 save(
     list = c("EW_NM_points", "random_points"), 
-    file = paste0("export/data_4_extracted_", path, ".RData")
+    file = paste0("data/4data_extracted_", path, ".RData")
 )
 
 list(
@@ -823,4 +821,5 @@ list(
     writexl::write_xlsx(paste0("export/points_exported_", path, ".xlsx"))
 
 cat("\nTask 4 finished. Total time consumed:\n"); Sys.time() - time0; cat("\n\n\n")
-cat("Yor files are in 'exported' directory with dates of generation in names")
+cat(paste0("\nYor Excel data in: 'export/4data_extracted_", path, ".RData'"))
+cat(paste0("\nYor R-env data in:   'data/4data_extracted_", path, ".RData'"))

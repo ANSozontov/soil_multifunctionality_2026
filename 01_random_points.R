@@ -24,7 +24,7 @@ check <- st_intersects(dots, nater_terrain, sparse = FALSE)
 
 random_points <- dots[apply(check, 1, sum) > 0,]
 
-save("random_points", file = paste0("random-points_terrain_", Sys.Date(), ".RData"))
+save("random_points", file = paste0("data/random-points_terrain_", Sys.Date(), ".RData"))
 
 library(ggplot2)
 p <- ggplot() + 
