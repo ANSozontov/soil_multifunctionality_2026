@@ -158,7 +158,7 @@ worldcover_statistics <- lst(random_points, EW_NM_points) %>%
     mutate(worldcover = str_replace_all(worldcover, "\\.", " "))
 
 print(worldcover_statistics)
-writexl::write_xlsx(worldcover_statistics, "export/worldcover_statistics.xlsx")
+writexl::write_xlsx(worldcover_statistics, paste0("export/worldcover_statistics_", Sys.Date(), ".xlsx"))
 
 p1 <- worldcover_statistics %>% 
     filter(worldcover %in% c(
