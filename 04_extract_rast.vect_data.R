@@ -795,4 +795,4 @@ list(
 
 cat("\nTask 4 finished. Total time consumed:\n"); Sys.time() - time0; cat("\n\n\n")
 cat(paste0("\nYor Excel data in: 'export/4data_extracted_", path, ".xlsx'"))
-cat(paste0("\nYor R-env data in:   'data/4data_extracted_", path, ".RData'"))
+cat(paste0("\nYor R-env data in:   'export/4data_extracted_", path, ".RData'"))
