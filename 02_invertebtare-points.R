@@ -1,11 +1,11 @@
-cat("\nTask 2 started...\n(usually takes 5-10 mins on 16 cores)") 
+cat("\nTask 02 started...\n") 
+cat("\nTypically takes 5-10 mins on 16 cores\n")
 cat("\nSubtask 2.1 (points load) started...\n")
-my_time0 <- Sys.time()
-my_time <- Sys.time()
+time1 <- time0 <- Sys.time()
 # subtask 1 ---------------------------------------------------------------
 suppressPackageStartupMessages({
     library(tidyverse)
-    # library(parallel)
+    library(parallel)
 })
 
 # nematodes
@@ -48,19 +48,17 @@ EW_occs <- readr::read_delim(
            spec = SpeciesBinomial, 
            Ecological_group, Abundance, Abundance_Unit) 
 
-cat("\nSubtask 2.1 finished:\n"); Sys.time() - my_time; cat("\n")
+cat("\nSubtask 2.1 finished:\n"); Sys.time() - time1; cat("\n")
 
 # subtask 2 ---------------------------------------------------------------
 cat("\nSubtask 2.2 (distances 1) started...\n") 
-my_time <- Sys.time()
+time1 <- Sys.time()
 # check for distance
 path0 <- str_subset(dir(pattern = "RData"), "data/EW-NM-points.sparsed2")
 if(length(path0)<1){
     cat(
         "\nEw and Nm points have NOT been matched already", 
         "\nThere is no prepared data, computing is started...\n")
-    # source("script_2b_distances_stage1.R")
-    library(parallel)
     a <- tidyr::expand_grid(
         EWID = EW_sites$EWID,
         NMID = nematodes$NMID, 
@@ -99,12 +97,12 @@ if(length(path0)<1){
         stringr::str_replace_all( ":", "-")
     save(list = "sparsed1", file = paste0("data/EW-NM-points_sparsed1_", path, ".RData"))
     
-    cat("\nSubtask 2.2 finished:\n"); Sys.time() - my_time; cat("\n")
+    cat("\nSubtask 2.2 finished:\n"); Sys.time() - time1; cat("\n")
     cat("\n", nrow(sparsed1), "points remain\n")
     
 # subtask 3 ---------------------------------------------------------------
     cat("\nSubtask 2.3 (distances 2) started...\n") 
-    my_time <- Sys.time()
+    time1 <- Sys.time()
     # source("script_2c_distances_stage2.R")
     
     EW_sites <-  sf::st_as_sf(
@@ -186,5 +184,5 @@ EW_NM_points <- sf::st_as_sf(
     remove = F)
 
 save(list = "EW_NM_points", file = paste0("data/EW-NM-points_", path, ".RData"))
-cat("\nSubtask 2.3 finished:\n"); Sys.time() - my_time; cat("\n")
-cat("\nTask 2 finished:\n"); Sys.time() - my_time0; cat("\n")
+cat("\nSubtask 2.3 finished:\n"); Sys.time() - time1; cat("\n")
+cat("\nTask 02 finished:\n"); Sys.time() - time0; cat("\n")

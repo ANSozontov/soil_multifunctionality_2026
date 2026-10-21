@@ -1,5 +1,6 @@
-cat("\nTask 1 started...\n") 
-my_time <- Sys.time()
+cat("\nTask 01 started...\n") 
+cat("\nTypically takes 5 secs\n")
+time0 <- Sys.time()
 suppressPackageStartupMessages({
     library(sf)
     library(dplyr)    
@@ -52,4 +53,5 @@ ggsave(
     dpi = 150
 )
 
-cat("\nTask 1 finished:\n"); Sys.time() - my_time
+cli::cli_alert_success("Task 01 is done!\n")
+Sys.time() - time0

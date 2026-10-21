@@ -1,6 +1,13 @@
-# points loading ----------------------------------------------------------
-cat("\nTask 3 started...\n")
-my_time <- Sys.time()
+# 3.1.A. points loading ----------------------------------------------------------
+cat("\nTask 03 started...\n")
+cat("\nTypically takes 18 sec\n")
+cat("\nSubtask 3.1 (data loading) started\n");
+time1 <- time0 <- Sys.time()
+suppressMessages({
+    library(sf)
+    library(parallel)
+    library(tidyverse)
+})
 
 check <- character()
 path <- stringr::str_subset(dir("data", pattern = "RData"), "random-points")
@@ -17,12 +24,6 @@ if(length(path)<1){
 }
 
 
-# path <- stringr::str_subset(dir(pattern = "RData"), "EW-NM-points")
-# if(length(path)<1){
-#     check <- c(check, "Warning! There is no earthworms&nematodes points")
-# } else {
-#     load(sort(path, decreasing = TRUE)[1])
-# }
 if(length(check>0)){
     for(i in 1:length(check)){
         cli::cli_warn(check[i])
@@ -39,12 +40,6 @@ if(length(check>0)){
 random_points$id <- 1:nrow(random_points)
 EW_NM_points$id <- 1:nrow(EW_NM_points)
 
-suppressMessages({
-    library(sf)
-    library(parallel)
-    library(tidyverse)
-})
-
 wc_table <- data.frame(
     wc = c(10, 20, 30, 40, 50, 60, 70, 80, 90, 95, 100), 
     worldcover = c("Tree cover", "Shrubland", "Grassland",
@@ -53,7 +48,7 @@ wc_table <- data.frame(
                    "Herbaceous wetland", "Mangroves", "Moss and lichen")
 )
 
-# WorldCover --------------------------------------------------------------
+# 3.1.B. WorldCover --------------------------------------------------------------
 wc_files <- dir("rasters/00_worldcover", pattern = ".tif")
 cat("\nProcessing WorldCover...\n")
 w <- mclapply(
@@ -64,9 +59,11 @@ w <- mclapply(
     mc.cores = 16
     )
 
-cat("\nSubtask 1 (rasters loading) finished:\n"); Sys.time() - my_time; cat("\n")
-my_time1 <- Sys.time()
+cat("\nSubtask 3.1 (data loading) finished:\n"); Sys.time() - time1; cat("\n")
 
+# 3.2. Extraction ---------------------------------------------------------
+cat("\nSubtask 3.2 (values extraction) started\n")
+time1 <- Sys.time()
 result <- mclapply(
     1:length(w),
     # 1070:1170,
@@ -108,7 +105,11 @@ result <- mclapply(
     },
     mc.cores = 16
 )
-cat("\nSubtask 2 (rasters values extraction) finished:\n"); Sys.time() - my_time1; cat("\n")
+cat("\nSubtask 3.2 (values extraction) finished:\n"); Sys.time() - time1; cat("\n")
+
+# 3.3. Export ------------------------------------------------------------------
+cat("\nSubtask 3.3 (export) started\n")
+time1 <- Sys.time()
 
 result <- purrr::transpose(result)
 result_rnd  <- purrr::map_dfr(result$rnd, rbind)
@@ -120,7 +121,6 @@ EW_NM_points <- dplyr::left_join(EW_NM_points, result_ewnm, by = "id")
 EW_NM_points <- dplyr::left_join(EW_NM_points, wc_table, by = "wc")
 # dplyr::filter(EW_NM_points, !is.na(wc))
 
-# export ------------------------------------------------------------------
 EW_NM_points$id <- NULL
 random_points$id <- NULL
 path <- Sys.time() |>
@@ -148,8 +148,6 @@ save(
     list = c("EW_NM_points", "random_points"), 
     file = paste0("data/EW-NM-random-points_final_", path, ".RData")
 )
-
-cat("\nTask 3 finished:\n"); Sys.time() - my_time; cat("\n")
 
 worldcover_statistics <- lst(random_points, EW_NM_points) %>% 
     map_dfr(~count(st_drop_geometry(.x), worldcover), .id = "tp") %>% 
@@ -188,8 +186,6 @@ if(interactive()){plot(p1)} else {
     )
 } 
 
-
-# library(ggplot2)
 nater_terrain <- st_read("vectors/naturalearth/ne_50m_land.shp", quiet = TRUE)
 p2 <- random_points %>% 
     filter(worldcover %in% c(
@@ -241,4 +237,5 @@ if(interactive()){plot(p2)} else {
     )
 }
 
-
+cat("\nSubtask 3.3 (export) finished:\n"); Sys.time() - time1; cat("\n")
+cat("\nTask 03 finished:\n"); Sys.time() - time0; cat("\n")

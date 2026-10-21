@@ -1,14 +1,20 @@
 # load --------------------------------------------------------------------
-suppressPackageStartupMessages(library(sf))
-library(wdpar)
-suppressPackageStartupMessages(library(dplyr))
-library(purrr)
-library(parallel)
-library(rmapshaper)
+cat("\nTask 00 started...\n") 
+cat("\nTypically takes 6 mins  on 6 cores & 60 GB RAM\n")
+time1 <- time0 <- Sys.time()
+
+suppressPackageStartupMessages({
+    library(sf)
+    library(dplyr)
+    library(wdpar)
+    library(purrr)
+    library(parallel)
+    library(rmapshaper)
+})
+
 # Sys.setenv(CHROMOTE_CHROME = "C:/Program Files/BraveSoftware/Brave-Browser/Application/brave.exe")
 Sys.setenv(CHROMOTE_CHROME = "/usr/bin/brave")
 
-time1 <- time0 <- Sys.time()
 protected <- wdpa_fetch(
     "global", 
     download_dir = "vectors/14_WDPA.global/",
@@ -26,12 +32,14 @@ time1 <- Sys.time()
 
 # processing --------------------------------------------------------------
 protected <- protected %>%
-    mutate(chunk = rep(1:100, length.out = n())) %>%
+    mutate(chunk = rep(1:1000, length.out = n())) %>%
     group_split(chunk)
 res <- list()
+j <- seq(0, 990, by = 25) %>% 
+    map(~`+`(.x, 1:25))
 cat("0 % done\n")
-for(i in 1:10){
-    res[[i]] <- protected[(1:10)*i] %>% 
+for(i in seq_along(j)){
+    res[[i]] <- protected[j[[i]]] %>%
         mclapply(function(xx){
             yy <- xx |> 
                 filter(
@@ -50,18 +58,22 @@ for(i in 1:10){
                 st_cast("POLYGON") |>
                 rmapshaper::ms_simplify(
                     quiet = TRUE,
-                    keep = 0.25, 
-                    sys = TRUE, 
-                    snap = TRUE, 
-                    sys_mem = 6, 
+                    keep = 0.25,
+                    sys = TRUE,
+                    snap = TRUE,
+                    sys_mem = 5,
                     method = "vis") |> 
                 wdpar::st_repair_geometry() |>
                 suppressWarnings()
             bb <- do.call(rbind, lapply(st_geometry(yy), st_bbox))
             return(cbind(yy, bb))
-        }, mc.cores = 7) 
-    cat(i*10, "% done\n")
-} 
+        }, mc.cores = 6)
+    
+    tempdir() |> 
+        list.files(full.names = TRUE, recursive = FALSE) |> 
+        unlink(recursive = TRUE, force = TRUE)
+    cat(sprintf("%.1f", j[[i]][25]/10), "% done\n")
+}
 res <- flatten_dfr(res)
 cat("Data prepared\n")
 Sys.time() - time1
