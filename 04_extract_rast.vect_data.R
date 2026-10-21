@@ -1,7 +1,8 @@
 # 0. points loading ----------------------------------------------------------
 # 1.5 sec
-cat("\nTask 4 started...\n") 
-cat("Subtask 0 started: points loading...")
+cat("\nTask 04 started...\n")
+cat("\nTypically takes ...\n")
+cat("Subtask 4.0 started: points loading...")
 time1 <- time0 <- Sys.time()
 suppressMessages({
     library(sf)
@@ -37,11 +38,11 @@ EW_NM_points <- EW_NM_points %>%
 pts <- rbind(EW_NM_points[,1:2], random_points[,1:2])
 pts$type <- c(rep("EW", nrow(EW_NM_points)), rep("rnd", nrow(random_points)))
 
-cat("\nSubtask 0 end. Points have been loaded\n"); Sys.time() - time1; cat("\n\n\n")
+cat("\nSubtask 4.0 end. Points have been loaded\n"); Sys.time() - time1; cat("\n\n\n")
 
 # 1. Human footprint ---------------------------------------------------------
 # 1.5 sec
-cat("Subtask 1 started: Human footprint...")
+cat("Subtask 4.1 start: Human footprint...")
 time1 <- Sys.time()
 
 hfp <- terra::rast("rasters/01_human_footprint/hfp2022.tif")
@@ -51,10 +52,10 @@ tmp.points <- st_transform(random_points, st_crs(hfp))
 random_points$Human_Footprint_2022 <- raster::extract(hfp, tmp.points)$hfp2022
 rm(hfp, tmp.points)
 
-cat("\nSubtask 1 end. Human footprint is extracted\n"); Sys.time() - time1; cat("\n\n\n")
+cat("\nSubtask 4.1 end. Human footprint is extracted\n"); Sys.time() - time1; cat("\n\n\n")
 # 2. fungal diversity --------------------------------------------------------
 # 10 sec
-cat("Subtask 2 started: Fngal diversity...")
+cat("Subtask 4.2 started: Fngal diversity...")
 time1 <- Sys.time()
 
 if(!file.exists("rasters/02_fungal_diversity_zenodo.org_records_8013448")){
@@ -128,12 +129,12 @@ tibble(x = a[
     `[`(-length(.)) %>% 
     write_lines("readme_soil.fungi.txt", append = TRUE)
 
-cat("\nSubtask 2 end. Fungal diversity is here!\n"); Sys.time() - time1; cat("\n\n\n")
+cat("\nSubtask 4.2 end. Fungal diversity is here!\n"); Sys.time() - time1; cat("\n\n\n")
 
 # 3. E&AM --------------------------------------------------------------------
 # 0.3 sec
 # "10.5061/dryad.866t1g1tt" 
-cat("Subtask 3 started: mycorrhiz...")
+cat("Subtask 4.3 started: mycorrhiz...")
 time1 <- Sys.time()
 
 files <- dir("rasters/03_mycorrhiz_doi_10_5061_dryad_866t1g1tt", pattern = "tif")
@@ -165,11 +166,11 @@ random_points <- emam %>%
     as_tibble() %>% 
     cbind(random_points, .) 
 
-cat("\nSubtask 3 end. mycorrhiz... is here!\n"); Sys.time() - time1; cat("\n\n\n")
+cat("\nSubtask 4.3 end. mycorrhiz... is here!\n"); Sys.time() - time1; cat("\n\n\n")
 
-# 4a. Soil Grids get -----------------------------------------------------------
-# 1.5 sec
-cat("Subtask 4 started: Soil grids data...")
+# 4. Soil Grids  -----------------------------------------------------------
+# get data
+cat("Subtask 4.4 started: Soil grids data...")
 time1 <- Sys.time()
 
 files <- c("bdod", "cec", "cfvo", "clay", "nitrogen",
@@ -215,8 +216,7 @@ if(!dir.exists("./rasters/04_soil_grids")){
     cat("Fungal rasters were been downloaded already, let's extract:\n")
 }
 
-
-# 4b. Soil Grids extract ------------------------------------------------------
+# extract data
 soilgrids_result <- 1:nrow(files) %>% 
     # `[`(1:2) %>% 
     mclapply(function(i){
@@ -249,7 +249,7 @@ random_points <- soilgrids_result %>%
     as_tibble() %>% 
     cbind(random_points, .) 
 
-cat("\nSubtask 4 end. Soil grids is here!\n"); Sys.time() - time1; cat("\n\n\n")
+cat("\nSubtask 4.4 end. Soil grids is here!\n"); Sys.time() - time1; cat("\n\n\n")
 
 # 5. NDVI --------------------------------------------------------------------
 # 2.5 sec
@@ -308,12 +308,12 @@ ndvi$ndvi_rnd[is.nan(ndvi$ndvi_rnd)] <- NA
 EW_NM_points$ndvi_2020  <- ndvi$ndvi_ewnm
 random_points$ndvi_2020 <- ndvi$ndvi_rnd
 
-cat("\nSubtask 5 end. NDVI is here!\n"); Sys.time() - time1; cat("\n\n\n")
+cat("\nSubtask 4.5 end. NDVI is here!\n"); Sys.time() - time1; cat("\n\n\n")
 
 # 6. 2000-2020 change  -------------------------------------------------------
 # 5.5 sec
 # https://www.frontiersin.org/journals/remote-sensing/articles/10.3389/frsen.2022.856903/full
-cat("Subtask 6 started: 2000-2020 change...")
+cat("Subtask 4.6 started: 2000-2020 change...")
 time1 <- Sys.time()
 
 files <- dir("rasters/06_change_2000-2020", pattern = "tif")
@@ -363,14 +363,7 @@ change20 <- 1:length(files) %>%
             )
         }
         
-        # change20_ewnm <- raster::extract(r, EW_NM_points) %>% 
-        #     dplyr::select(-ID) %>% 
-        #     as_tibble()
-        # change20_rnd <- raster::extract(r, random_points) %>% 
-        #     dplyr::select(-ID) %>% 
-        #     as_tibble()
         list(change20_ewnm=new_ewnm, change20_rnd=new_rnd)
-        # 16, 9, 15, 7, 11 
     }, mc.cores = 16)
 
 # which(!sapply(change20, is.list))
@@ -382,23 +375,12 @@ EW_NM_points$change_2000.2020  <- change20$change20_ewnm$ch20
 random_points <- random_points %>% 
     left_join(change20$change20_rnd, by = "id") %>% 
     rename(change_2000.2020 = ch20)
-# select(-id, change_2000.2020 = ch20) 
-# EW_NM_points <- EW_NM_points %>% 
-#     cbind(change20$change20_ewnm[,-1])
-#     mutate(id = 1:n(), .before = 1) %>% 
-#     left_join(rename(change20$change20_ewnm, change_2000.2020 = ch20), by = "id")
- # select(-id, change_2000.2020 = ch20) 
 
-# random_points <- random_points %>% 
-#     mutate(id = 1:n(), .before = 1) %>% 
-#     left_join(rename(change20$change20_rnd, change_2000.2020 = ch20), by = "id")
-    # select(-id, change_2000.2020 = ch20) 
-
-cat("\nSubtask 3 end. 2000-2020 change is here!\n"); Sys.time() - time1; cat("\n\n\n")
+cat("\nSubtask 4.6 end. 2000-2020 change is here!\n"); Sys.time() - time1; cat("\n\n\n")
 
 # 7. Forest_height_2019 ------------------------------------------------------
 # 4 sec
-cat("Subtask 7 started: Forest_height_2019...\n")
+cat("Subtask 4.7 started: Forest_height_2019...\n")
 time1 <- Sys.time()
 
 files <- str_subset(dir("rasters/07_forest_height_2019_glad.umu.edu", pattern = "tif"), "xml", negate = TRUE)
@@ -462,12 +444,10 @@ random_points <- random_points %>%
     left_join(forest_h$forest_rnd, by = "id") %>% 
     rename(forest_height_2019 = forest)
 
-cat("\nSubtask 7 end. forest_height_2019 is here!\n"); Sys.time() - time1; cat("\n\n\n")
+cat("\nSubtask 4.7 end. forest_height_2019 is here!\n"); Sys.time() - time1; cat("\n\n\n")
 # 8. Lithology ------------------------------------------------------------
 # 1.8 sec
-cat("Subtask 8 started: Lithology 1.0 model\n")
-time1 <- Sys.time()
-
+cat("Subtask 4.8 started: Lithology 1.0 model\n"); time1 <- Sys.time()
 
 lith <- terra::rast("rasters/08_LITHO1.0/LITHO1.0.nc")
 lith <- subset(lith, str_subset(names(lith), "_vs|_vp|_density|_qkappa|_qmu|_eta|ice|asthenos|water|lower_sediments|middle_sediments", negate = TRUE))
@@ -499,11 +479,11 @@ random_points <- terra::extract(lith, random_points) %>%
     `colnames<-`(c("id", paste0("LITH1.0...", colnames(.)[-1]))) %>% 
     left_join(random_points, ., by = "id")
 
-cat("\nSubtask 8 end. Lithology 1.0 model is here!\n"); Sys.time() - time1; cat("\n\n\n")
+cat("\nSubtask 4.8 end. Lithology 1.0 model is here!\n"); Sys.time() - time1; cat("\n\n\n")
 
 # 9. USGS classification ------------------------------------------------------------
 # 2.1 sec
-cat("Subtask 9 started: USGS classification \n")
+cat("Subtask 4.9 started: USGS classification \n")
 time1 <- Sys.time()
 
 if(file.exists("rasters/09_USGS/World_Ecological_2015.tif.vat.dbf")){
@@ -535,11 +515,11 @@ if(file.exists("rasters/09_USGS/World_Ecological_2015.tif.vat.dbf.tmp") && !file
 }
 rm(EW_NM_tmp1, random_tmp1, eco_labs, eco_rast, tmp)
 
-cat("\nSubtask 9 end. USGS classification is here!\n"); Sys.time() - time1; cat("\n\n\n")
+cat("\nSubtask 4.9 end. USGS classification is here!\n"); Sys.time() - time1; cat("\n\n\n")
 
 # 10 NASA ---------------------------------------------------------------------
 # 8 sec
-cat("Subtask 10 started: NASA sources \n")
+cat("Subtask 4.10 started: NASA sources \n")
 time1 <- Sys.time()
 
 files <- dir("rasters/10_NASA/", include.dirs = TRUE)
@@ -574,11 +554,11 @@ EW_NM_points <- left_join(EW_NM_points, filter(res, type == "EW"), by = c("id", 
 random_points <- left_join(random_points, filter(res, type == "rnd"), by = c("id", "ID"))
 
 rm(res, files)
-cat("\nSubtask 10 end. NASA sources is here!\n"); Sys.time() - time1; cat("\n\n\n")
+cat("\nSubtask 4.10 end. NASA sources is here!\n"); Sys.time() - time1; cat("\n\n\n")
 
 # 11. landscan-global-population ------------------------------------------
 # 0.9 sec
-cat("Subtask 11 started: landscan-global-population \n")
+cat("Subtask 4.11 started: landscan-global-population \n")
 time1 <- Sys.time()
 
 tt <- terra::rast("rasters/11_landscan-global-population/landscan-global-2024.tif")
@@ -602,11 +582,11 @@ res <- pts %>%
 EW_NM_points  <- left_join(EW_NM_points,  res$EW, by = c("ID", "id"))
 random_points <- left_join(random_points, res$rnd, by = c("ID", "id"))
 
-cat("\nSubtask 11 end. landscan-global-population is here!\n"); Sys.time() - time1; cat("\n\n\n")
+cat("\nSubtask 4.11 end. landscan-global-population is here!\n"); Sys.time() - time1; cat("\n\n\n")
 
 # 12. Open Land map -------------------------------------------------------------------------
 # 1.2 mins
-cat("Subtask 12 started: Open Land map \n")
+cat("Subtask 4.12 started: Open Land map \n")
 time1 <- Sys.time()
 files <- dir("rasters/12_openlandmap/", pattern = "xlsx") %>% 
     sort(decreasing = TRUE) %>% 
@@ -698,17 +678,12 @@ res <- res %>%
 EW_NM_points <- left_join(EW_NM_points, res$EW, by = c("id", "ID"))
 random_points <- left_join(random_points, res$rnd, by = c("id", "ID"))
 
-# files_downloaded <- dir("rasters/12_openlandmap/", pattern = ".tif") 
-# files %>% 
-#     mutate(ex = file %in% files_downloaded) %>% 
-#     filter(ex == F) 
-
-cat("\nSubtask 12 end. Open Land map is here!\n"); Sys.time() - time1; cat("\n\n\n")
+cat("\nSubtask 4.12 end. Open Land map is here!\n"); Sys.time() - time1; cat("\n\n\n")
 
 
 # 13. Harmonized World Soil Database --------------------------------------
 # 0.6 sec
-cat("Subtask 13 started: Harmonized World Soil Database \n")
+cat("Subtask 4.13 started: Harmonized World Soil Database \n")
 time1 <- Sys.time()
 # https://www.fao.org/soils-portal/data-hub/soil-maps-and-databases/harmonized-world-soil-database-v12/en/
 files <- dir("rasters/13_hwsd_1.2/", ".asc")
@@ -749,11 +724,12 @@ res <- files %>%
 EW_NM_points <- left_join(EW_NM_points, res$EW, by = c("id", "ID"))
 random_points <- left_join(random_points, res$rnd, by = c("id", "ID"))
     
-cat("\nSubtask 13 end. Harmonized World Soil Database is here!\n"); Sys.time() - time1; cat("\n\n\n")
+cat("\nSubtask 4.13 end. Harmonized World Soil Database is here!\n"); Sys.time() - time1; cat("\n\n\n")
 
-# 14a. WDPA Protected areas: preparation -----------------------------------------------------
+# 14a. WDPA Protected areas  -----------------------------------------------------
+# preparation
 # 8 sec
-cat("Subtask 14a started: WDPA Protected areas preparation \n")
+cat("Subtask 14 started: WDPA Protected areas preparation \n")
 time1 <- Sys.time()
 files <- dir("vectors/14_WDPA.cached/", ".gpkg")
 if(length(files)<10){
@@ -766,20 +742,17 @@ if(length(files)<10){
         mclapply(
             function(i){
                 paste0("vectors/14_WDPA.cached/", i, ".gpkg") %>% 
-                    st_read(as.character(i), quiet = TRUE) %>% # wdpar::st_repair_geometry(
+                    st_read("d", quiet = TRUE) %>% # wdpar::st_repair_geometry(
                     st_transform(3857)
             }, 
             mc.cores = 10
         )
 }
-cat("loaded: "); (Sys.time()-time1); cat("\n\n\n")
+cat("loaded; extraction...\n")
 
-# 14b. WDPA Protected areas: extraction  -----------------------------------------------------
-# 2.5 mins
-cat("Subtask 14b started: Protected areas: extraction \n")
+# extraction 
 pts <- st_transform(pts, 3857)
 
-time1 <- Sys.time()
 distances <- 1:10 %>% 
     mclapply(
         function(i){
@@ -803,7 +776,7 @@ distances <- pts %>%
 
 EW_NM_points <- left_join(EW_NM_points, distances$EW, by = c("ID", "id"))
 random_points <- left_join(random_points, distances$rnd, by = c("ID", "id"))
-cat("\nSubtask 14b end. WDPA Protected areas is here!\n"); Sys.time() - time1; cat("\n\n\n")
+cat("\nSubtask 4.14 end. WDPA Protected areas is here!\n"); Sys.time() - time1; cat("\n\n\n")
 # export ------------------------------------------------------------------
 path <- Sys.time() %>% 
     format("%Y-%m-%d")
@@ -818,8 +791,8 @@ list(
         invertebrates = EW_NM_points
     ) %>% 
     lapply(st_drop_geometry) %>% 
-    writexl::write_xlsx(paste0("export/points_exported_", path, ".xlsx"))
+    writexl::write_xlsx(paste0("export/4data_extracted_", path, ".xlsx"))
 
 cat("\nTask 4 finished. Total time consumed:\n"); Sys.time() - time0; cat("\n\n\n")
-cat(paste0("\nYor Excel data in: 'export/4data_extracted_", path, ".RData'"))
+cat(paste0("\nYor Excel data in: 'export/4data_extracted_", path, ".xlsx'"))
 cat(paste0("\nYor R-env data in:   'data/4data_extracted_", path, ".RData'"))
