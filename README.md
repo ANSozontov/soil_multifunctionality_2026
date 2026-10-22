@@ -9,13 +9,21 @@ There is plethora of papers devoted to soil multifunctionality (SMF), but there 
 Run the scripts sequentially: 
 
 `Rscript 00_prepare_protected_areas.R`
+
 `Rscript 01_random_points.R`
+
 `Rscript 02_invertebtare-points.R`
+
 `Rscript 03_add_WorldCover.R`
+
 `Rscript 04_extract_rast.vect_data.R`
+
 ? `04b_plot_rast_data.R`
+
 ? `11_points.R`
+
 ? `pics.R`
+
 `Rscript 20_multifunc.R` или `R -e "rmarkdown::render('20_multifunc.Rmd')"`
 
 [![CC BY 4.0][cc-by-image]][cc-by]
