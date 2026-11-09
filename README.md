@@ -1,4 +1,4 @@
-Raw data & source code for the artice:
+Code & data for the artice:
 
 # A re-classification of soil functions with an approach to assessing soil multifunctionality
 
